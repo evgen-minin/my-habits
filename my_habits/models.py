@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from users.models import User
 
@@ -32,6 +33,25 @@ class Habit(models.Model):
     time_required = models.PositiveIntegerField(help_text="Time required in seconds",
                                                 verbose_name="Время на выполнение")
     is_public = models.BooleanField(verbose_name="Признак публичности")
+
+    def clean(self):
+        if self.related_habit and self.is_reward:
+            raise ValidationError("Нельзя одновременно выбирать связанную привычку и указывать вознаграждение.")
+
+        if self.time_required > 120:
+            raise ValidationError("Время выполнения не может быть больше 120 секунд.")
+
+        if self.related_habit and not self.related_habit.is_reward:
+            raise ValidationError("Связанная привычка должна быть приятной привычкой.")
+
+        if self.is_reward:
+            if self.related_habit:
+                raise ValidationError("Приятная привычка не может иметь связанную привычку.")
+            if self.reward:
+                raise ValidationError("Приятная привычка не может иметь вознаграждение.")
+
+        if self.frequency < 7:
+            raise ValidationError("Нельзя выполнять привычку реже, чем 1 раз в 7 дней.")
 
     def __str__(self):
         return self.title
