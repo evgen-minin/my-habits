@@ -13,12 +13,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """
-        Обработчик команды create_superuser.
+        Обработчик команды get_or_create.
 
         Создаёт суперпользователя с указанными данными.
 
         """
-        User = get_user_model()
         user, created = User.objects.get_or_create(
             email='evgen@minin.ru',
             defaults={
