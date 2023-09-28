@@ -35,6 +35,12 @@ class Habit(models.Model):
     is_public = models.BooleanField(verbose_name="Признак публичности")
 
     def clean(self):
+        """
+        Метод для валидации полей модели.
+
+        Проверяет различные условия, чтобы убедиться, что данные валидны.
+        Генерирует ValidationError в случае нарушения условий.
+        """
         if self.related_habit and self.is_reward:
             raise ValidationError("Нельзя одновременно выбирать связанную привычку и указывать вознаграждение.")
 
