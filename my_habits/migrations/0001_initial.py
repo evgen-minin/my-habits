@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('is_reward', models.BooleanField(verbose_name='Признак приятной привычки')),
                 ('frequency', models.PositiveIntegerField(default=1, help_text='Frequency in days', verbose_name='Периодичность')),
                 ('reward', models.CharField(max_length=255, verbose_name='Вознаграждение')),
-                ('time_required', models.PositiveIntegerField(help_text='Time required in seconds', verbose_name='Время на выполнение')),
+                ('time_required', models.TimeField(help_text='Time required in seconds', verbose_name='Время на выполнение')),
                 ('is_public', models.BooleanField(verbose_name='Признак публичности')),
                 ('related_habit', models.ForeignKey(blank=True, limit_choices_to={'is_reward': True}, null=True, on_delete=django.db.models.deletion.CASCADE, to='my_habits.habit', verbose_name='Связанная привычка')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),

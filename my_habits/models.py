@@ -25,14 +25,13 @@ class Habit(models.Model):
     place = models.CharField(max_length=255, verbose_name="Место")
     time = models.TimeField(verbose_name="Время")
     action = models.TextField(verbose_name="Действие")
-    is_reward = models.BooleanField(verbose_name="Признак приятной привычки")
+    is_reward = models.BooleanField(verbose_name="Признак приятной привычки", null=True, blank=True)
     related_habit = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE,
                                       limit_choices_to={'is_reward': True}, verbose_name="Связанная привычка")
     frequency = models.PositiveIntegerField(default=1, help_text="Frequency in days", verbose_name="Периодичность")
-    reward = models.CharField(max_length=255, verbose_name="Вознаграждение")
-    time_required = models.PositiveIntegerField(help_text="Time required in seconds",
-                                                verbose_name="Время на выполнение")
-    is_public = models.BooleanField(verbose_name="Признак публичности")
+    reward = models.CharField(max_length=255, verbose_name="Вознаграждение", null=True, blank=True)
+    time_required_new = models.TimeField(help_text='Time required', null=True, blank=True, verbose_name="Время на выполнение")
+    is_public = models.BooleanField(verbose_name="Признак публичности", null=True, blank=True)
 
     def clean(self):
         """
