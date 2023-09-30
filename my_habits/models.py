@@ -23,14 +23,15 @@ class Habit(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     title = models.CharField(max_length=255, verbose_name="Заголовок")
     place = models.CharField(max_length=255, verbose_name="Место")
-    time = models.TimeField(verbose_name="Время")
+    time = models.TimeField(null=True, blank=True, verbose_name="Время")
     action = models.TextField(verbose_name="Действие")
     is_reward = models.BooleanField(verbose_name="Признак приятной привычки", null=True, blank=True)
     related_habit = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE,
                                       limit_choices_to={'is_reward': True}, verbose_name="Связанная привычка")
     frequency = models.PositiveIntegerField(default=1, help_text="Frequency in days", verbose_name="Периодичность")
     reward = models.CharField(max_length=255, verbose_name="Вознаграждение", null=True, blank=True)
-    time_required_new = models.TimeField(help_text='Time required', null=True, blank=True, verbose_name="Время на выполнение")
+    time_required_new = models.PositiveIntegerField(help_text='Time required', null=True, blank=True,
+                                         verbose_name="Время на выполнение")
     is_public = models.BooleanField(verbose_name="Признак публичности", null=True, blank=True)
 
     def clean(self):
@@ -43,7 +44,7 @@ class Habit(models.Model):
         if self.related_habit and self.is_reward:
             raise ValidationError("Нельзя одновременно выбирать связанную привычку и указывать вознаграждение.")
 
-        if self.time_required > 120:
+        if self.time_required_new > 120:
             raise ValidationError("Время выполнения не может быть больше 120 секунд.")
 
         if self.related_habit and not self.related_habit.is_reward:

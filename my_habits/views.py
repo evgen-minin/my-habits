@@ -33,3 +33,15 @@ class HabitViewSet(viewsets.ModelViewSet):
         user = self.request.user  # Получаем текущего пользователя
         # Возвращаем привычки текущего пользователя или публичные
         return Habit.objects.filter(Q(user=user) | Q(is_public=True))
+
+    def perform_create(self, serializer):
+        """
+        Метод выполняется при создании новой привычки.
+
+        Args:
+            serializer (HabitSerializer): Сериализатор для привычки.
+
+        Returns:
+            None
+        """
+        serializer.save(user=self.request.user)
