@@ -1,58 +1,73 @@
-from datetime import datetime
-
-from django.core import mail
-from django.test import TestCase
+from django.contrib.auth import get_user_model
 from django.urls import reverse
-from django.utils import timezone
 from rest_framework import status
-
-from my_habits.models import Habit
-from my_habits.tasks import send_habit_notification
-from users.models import User
-
 from rest_framework.test import APITestCase
+from my_habits.models import Habit
 
 
-class SendHabitNotificationTestCase(TestCase):
-
-    def test_send_habit_notification(self):
-        # Создаём  пользователя и привычку
-        user = User.objects.create(email='evgen@minin.ru', password='123qwe456rty')
-        habit = Habit.objects.create(
-            user=user,
-            title='Test Habit',
-            time=timezone.now().time(),  # Устанавливаем текущее время
-            time_required=60,  # Устанавливаем время выполнения
-            is_reward=True,
-        )
-
-        # Вызываем задачу
-        send_habit_notification(habit.id)
-
-        # Проверьте, было ли отправлено уведомление
-        self.assertEqual(len(mail.outbox), 1)  # Проверка, что было отправлено одно уведомление
-        self.assertEqual(mail.outbox[0].subject, 'Уведомление')  # Проверка темы уведомления
-        self.assertIn('Test Habit', mail.outbox[0].body)  # Проверка содержания уведомления
-
-
-class HabitAPITestCase(APITestCase):
+class HabitViewSetTest(APITestCase):
     def setUp(self):
-        # Создаем пользователя
-        self.user = User.objects.create_user(email='evgen@minin.ru', password='123qwe456rty')
-        self.client.login(username='testuser', password='testpassword')
+        self.user = get_user_model().objects.create(
+            email='evgen@minin.ru',
+            first_name='Admin',
+            last_name='evgen',
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.user.set_password('123qwe456rty')
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
 
     def test_create_habit(self):
-        url = reverse('habit-list')
+        url = reverse('my_habits:my-habits-list')
         data = {
-            'user': self.user.id,
-            'title': 'Test Habit',
-            'place': 'Test Place',
-            'time': '08:00:00',
-            'action': 'Test Action',
-            'frequency': 7,
-            'time_required': 3600  # 1 час в секундах
+            'title': 'New Habit',
+            'place': 'New place',
+            'action': 'New action',
+            'is_public': True,
+            'user': self.user.id
         }
-
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Habit.objects.count(), 1)
+        self.assertEqual(Habit.objects.get().title, 'New Habit')
+
+    def test_list_habits(self):
+        Habit.objects.create(
+            title='Habit 1',
+            is_public=True,
+            user=self.user
+        )
+        Habit.objects.create(
+            title='Habit 2',
+            is_public=False,
+            user=self.user
+        )
+        url = reverse('my_habits:my-habits-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 4)
+
+    def test_update_habit(self):
+        habit = Habit.objects.create(
+            title='Old Habit',
+            is_public=True,
+            user=self.user
+        )
+        url = reverse('my_habits:my-habits-detail', args=[habit.id])
+        data = {'title': 'Updated Habit'}
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        habit.refresh_from_db()
+        self.assertEqual(habit.title, 'Updated Habit')
+
+    def test_delete_habit(self):
+        habit = Habit.objects.create(
+            title='To Be Deleted',
+            is_public=True,
+            user=self.user
+        )
+        url = reverse('my_habits:my-habits-detail', args=[habit.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Habit.objects.count(), 0)
