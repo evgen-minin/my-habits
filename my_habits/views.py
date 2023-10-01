@@ -4,7 +4,6 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from my_habits.models import Habit
-from my_habits.paginators import HabitsPagination
 from my_habits.serializers.habit import HabitSerializer
 
 
@@ -27,7 +26,6 @@ class HabitViewSet(viewsets.ModelViewSet):
     queryset = Habit.objects.all()
     authentication_classes = [SessionAuthentication, TokenAuthentication, JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = HabitsPagination
 
     def get_queryset(self):
         user = self.request.user  # Получаем текущего пользователя
