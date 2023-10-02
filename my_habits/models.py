@@ -31,7 +31,7 @@ class Habit(models.Model):
     frequency = models.PositiveIntegerField(default=1, help_text="Frequency in days", verbose_name="Периодичность")
     reward = models.CharField(max_length=255, verbose_name="Вознаграждение", null=True, blank=True)
     time_required_new = models.PositiveIntegerField(help_text='Time required', null=True, blank=True,
-                                         verbose_name="Время на выполнение")
+                                                    verbose_name="Время на выполнение")
     is_public = models.BooleanField(verbose_name="Признак публичности", null=True, blank=True)
 
     def clean(self):
