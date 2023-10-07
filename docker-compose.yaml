@@ -1,4 +1,4 @@
-version: '3'
+version: '3.10'
 
 services:
   db:
@@ -6,17 +6,11 @@ services:
     env_file:
       - .env
     environment:
-      ENGINE: DB_ENGINE
-      NAME: DB_NAME
-      USER: DB_USER
-      HOST: DB_HOST
-      PORT: DB_PORT
-      POSTGRES_PASSWORD: DB_PASSWORD
       PGDATA: /var/lib/postgresql/data/pgdata
 
   app:
     build: .
-    command: python3 manage.py runserver
+    command: bash -c 'python3 manage.py runserver 0.0.0.0:8000'
     ports:
       - '8000:8000'
     depends_on:

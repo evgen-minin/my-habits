@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 COPY . .
 
 #  Запускаем приложение при старте контейнера
-CMD ["python", "manage.py", "runserver" , "0.0.0.0:8080"]
+CMD sleep 10 && python manage.py runserver 0.0.0.0:8000
