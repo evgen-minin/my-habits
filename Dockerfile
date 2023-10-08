@@ -13,5 +13,5 @@ RUN pip install -r requirements.txt
 # Копируем все файлы из текущего каталога (где находится Docker-файл) в контейнер
 COPY . .
 
-#  Запускаем приложение при старте контейнера
-CMD sleep 10 && python manage.py runserver 0.0.0.0:8000
+##  Запускаем приложение при старте контейнера
+#CMD sleep 10 && python manage.py runserver 0.0.0.0:8000
